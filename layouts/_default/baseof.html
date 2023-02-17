@@ -2,32 +2,21 @@
 <html>
 	<head><title>Giro d'Italia</title>
 	
+	{{ $js := resources.Get "main.js" | minify | fingerprint }}
 	{{ $css := resources.Get "reset.css" | minify | fingerprint }}
 	  <link href="{{ $css.Permalink }}" rel="stylesheet"/>
 	
-	
-	
-	<!-- 
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-	 integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-	 crossorigin=""/>
-	 
-	 
-	
-	 
-	  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-		  integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-		  crossorigin=""></script> 
-		   -->
+
 		  
 		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
 		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
 		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.Default.min.css" />
 		  
+		  <script src="{{ $js.RelPermalink }}"></script>
 		  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
 		  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
 
-		  
+		 
 		  
 		  
 		  <style>
@@ -68,17 +57,68 @@
 				  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 			  }
 			  
+			  #lightbox {
+				  position: fixed;
+				  width: 100vw;
+				  height: 100vh;
+				  background: rgba(0, 0, 0, 0.5);
+				  top: 0;
+				  left: 0;
+				  z-index: 1000;
+				  display: none;
+			  }
+			  
+			  #lightbox img {
+				  width: auto;
+					height: auto;
+					max-width: 90%;
+					max-height: 90%;
+					margin: auto;
+				  border-radius: 32px;
+				  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+			  }
+			  
+			  #close {
+				  position: fixed;
+				  background: #3b82f6;
+				  border: none;
+				  color: white;
+				  border-radius: 4px;
+				  font-weight: bolder;
+				  font-size: 16px;
+				  right: 12px;
+				  top: 12px;
+				  padding: 4px 12px;
+				  cursor: pointer;
+				  transition: 0.3s;
+			  }
+			  #close:hover {
+				  opacity: 0.8;
+			  }
+			 
 		  </style>
 		  </head>
 	<body>
 		
 	
-		
-		
-		
 		{{ block "main" . }}{{ end }}
 		
+	
+		<div id="lightbox">
+	
+			<button id="close" onclick="closeLightbox()">Close</button>
+			
+			<div id="image"></div>
+		</div>
+		
 		<script>
+			var firstLoad = true
+			const lightbox = document.getElementById('lightbox')
+			const closeBtn = document.getElementById('close-button')
+
+			
+			
+			
 			
 			var map = L.map('map').setView([42.8719, 10.5674], 6.8);
 			
@@ -149,7 +189,12 @@
 				 {{ .Long }}
 			   ], {icon: icon})
 			   .on('click', function(e) {
-			      window.open({{ $asset.RelPermalink }}, '_blank').focus();
+			      // window.open({{ $asset.RelPermalink }}, '_blank').focus();
+				  
+				  let btn = '<button id="close" onclick="closeLightbox()">Close</button>'
+				  let img = '<img src="{{ $asset.Permalink}} "/>'
+				  lightbox.innerHTML = btn + img
+				  lightbox.style.display = "flex"
 			  });
 			   
 			   markers.addLayer(marker)
@@ -162,8 +207,7 @@
 			 {{ end }}
 			 
 			 map.addLayer(markers);
-			 
-			 
+			
 			
 		</script>
 	</body>
