@@ -7,16 +7,29 @@
 	
 	
 	
+	<!-- 
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
 	 integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
 	 crossorigin=""/>
 	 
 	 
 	
-	 <!-- Make sure you put this AFTER Leaflet's CSS -->
+	 
 	  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
 		  integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-		  crossorigin=""></script>
+		  crossorigin=""></script> 
+		   -->
+		  
+		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
+		  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.Default.min.css" />
+		  
+		  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+		  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+
+		  
+		  
+		  
 		  <style>
 			  #map {
 				  width: 100vw;
@@ -74,36 +87,80 @@
 				}
 			});
 			
+			
+			var markers = L.markerClusterGroup();
+			
 			{{ $files := readDir "/assets/giro" }}
 						 
+		// 	 {{ range $files }}
+		// 	 
+		// 	
+		// 	 
+		// 	 {{ $a := "/giro/" }}
+		// 	 {{ $b := .Name }}
+		// 	 {{ $c := "" }}
+		// 	 {{ $a := printf "%s" $c | printf "%s%s" $b | printf "%s%s" $a | printf "%s"}}
+		// 	 
+		// 	 
+		// 	 {{ $asset := resources.Get $a }}
+		// 	 {{ $thumbnail := $asset.Fill "120x120" }}
+		// 	
+		// 
+		// 	
+		// 	{{ with $asset.Exif }}
+		// 	 
+		// 	 var marker = new photoIcon({iconUrl: {{ $thumbnail.RelPermalink}} })
+		// 	  
+		// 	  L.marker([{{ .Lat }}, {{ .Long }}], {icon: marker}).addTo(map)
+		// 	  .on('click', function(e) {
+		// 		 window.open({{ $asset.RelPermalink }}, '_blank').focus();
+		// 	  });
+		// 	  
+		// 	 
+		// 	{{ end }}
+		// 	 {{ end }}
+			 
+			 
+			
 			 {{ range $files }}
-			 
-			
-			 
-			 {{ $a := "/giro/" }}
-			 {{ $b := .Name }}
-			 {{ $c := "" }}
-			 {{ $a := printf "%s" $c | printf "%s%s" $b | printf "%s%s" $a | printf "%s"}}
-			 
-			 
-			 {{ $asset := resources.Get $a }}
-			 {{ $thumbnail := $asset.Fill "120x120" }}
-			
-		
-			
-			{{ with $asset.Exif }}
-			 
-			 var marker = new photoIcon({iconUrl: {{ $thumbnail.RelPermalink}} })
+			  {{ $a := "/giro/" }}
+			   {{ $b := .Name }}
+			   {{ $c := "" }}
+			   {{ $a := printf "%s" $c | printf "%s%s" $b | printf "%s%s" $a | printf "%s"}}
+			   
+			   
+			   {{ $asset := resources.Get $a }}
+			  {{ $thumbnail := $asset.Fill "120x120" }}
+			  {{ with $asset.Exif }}
 			  
-			  L.marker([{{ .Lat }}, {{ .Long }}], {icon: marker}).addTo(map).on('click', function(e) {
-				 window.open({{ $asset.RelPermalink }}, '_blank').focus();
+			  
+			  var icon = new photoIcon({iconUrl: {{ $thumbnail.RelPermalink}} })
+				// 
+				// L.marker([{{ .Lat }}, {{ .Long }}], {icon: marker})
+				// // .addTo(map)
+				// .on('click', function(e) {
+				//    window.open({{ $asset.RelPermalink }}, '_blank').focus();
+				// });
+				
+			  
+			   var marker = L.marker([
+				 {{ .Lat }}, 
+				 {{ .Long }}
+			   ], {icon: icon})
+			   .on('click', function(e) {
+			      window.open({{ $asset.RelPermalink }}, '_blank').focus();
 			  });
-			  
+			   
+			   markers.addLayer(marker)
 			 
-			{{ end }}
-			
-		
+			 
+			 
 			 {{ end }}
+			 
+			 
+			 {{ end }}
+			 
+			 map.addLayer(markers);
 			 
 			 
 			
