@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html>
+	<head><title>Giro d'Italia</title>
+	
+	{{ $css := resources.Get "reset.css" | minify | fingerprint }}
+	  <link href="{{ $css.Permalink }}" rel="stylesheet"/>
+	
+	
+	
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+	 integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+	 crossorigin=""/>
+	 
+	 
+	
+	 <!-- Make sure you put this AFTER Leaflet's CSS -->
+	  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+		  integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+		  crossorigin=""></script>
+		  <style>
+			  #map {
+				  width: 100vw;
+				  height: 100vh;
+			  }
+			  
+			  .leaflet-marker-pane img {
+				  border-radius: 6px;
+				  border: 3px solid white;
+			  }
+			  
+		  </style>
+		  </head>
+	<body>
+		
+		
+	
+		
+		
+		
+		{{ block "main" . }}{{ end }}
+		
+		<script>
+			
+		
+
+			var map = L.map('map').setView([42.8719, 11.5674], 6.8);
+			
+			L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+				maxZoom: 19,
+				attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+			}).addTo(map);
+			
+			
+			// White css border pushes image to left,
+			// we need to correct the delay between arrow and image by
+			// adding the same border line width badding
+			const padding = 3
+			const iconSize = 64
+			const iconAnchorX = 22
+			const iconAnchorY = 94
+			
+			const shadowW = 24
+			const shadowX = ((iconSize - shadowW) / 2) - iconAnchorX + padding
+			const shadowY = (-iconSize) + iconAnchorY - padding
+			
+			const photoIcon = L.Icon.extend({
+				options: {
+					shadowUrl: '/down-arrow.png',
+					iconSize:     [iconSize, iconSize],
+					shadowSize:   [24, 12],
+					iconAnchor:   [iconAnchorX, iconAnchorY],
+					shadowAnchor: [-shadowX, shadowY],
+					popupAnchor:  [0, 0]
+				}
+			});
+			
+			{{ $files := readDir "/assets/giro" }}
+						 
+			 {{ range $files }}
+			 
+			
+			 
+			 {{ $a := "/giro/" }}
+			 {{ $b := .Name }}
+			 {{ $c := "" }}
+			 {{ $a := printf "%s" $c | printf "%s%s" $b | printf "%s%s" $a | printf "%s"}}
+			 
+			 
+			 {{ $asset := resources.Get $a }}
+			 {{ $thumbnail := $asset.Fill "120x120" }}
+			
+		
+			
+			{{ with $asset.Exif }}
+			 
+			 var marker = new photoIcon({iconUrl: {{ $thumbnail.RelPermalink}} })
+			  
+			  L.marker([{{ .Lat }}, {{ .Long }}], {icon: marker}).addTo(map).on('click', function(e) {
+				 window.open({{ $asset.RelPermalink }}, '_blank').focus();
+			  });
+			  
+			 
+			{{ end }}
+			
+		
+			 {{ end }}
+			 
+			 
+			
+		</script>
+	</body>
+</html>

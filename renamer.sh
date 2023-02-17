@@ -1,0 +1,1 @@
+exiftool -coordFormat '%.4f' '-filename<${datetimeoriginal}-${gpslatitude;}-${gpslongitude}.%e' -d "%Y-%m-%d-%H.%M.%S%%-c" *.jpeg
